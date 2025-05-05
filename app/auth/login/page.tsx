@@ -33,6 +33,7 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
+  const [activeTab, setActiveTab] = useState("login")
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -153,7 +154,7 @@ export default function LoginPage() {
             <p className="text-zinc-400">Acesse sua conta para continuar</p>
           </div>
 
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Cadastro</TabsTrigger>

@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { Flame, Mail, Lock, Github, ChromeIcon as Google, User, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -7,8 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { useState } from "react"
 
 export default function RegisterPage() {
+  const [userType, setUserType] = useState("participant")
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4">
@@ -32,9 +37,14 @@ export default function RegisterPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <RadioGroup defaultValue="participant" className="grid grid-cols-2 gap-4">
+              <RadioGroup
+                defaultValue="participant"
+                value={userType}
+                onValueChange={setUserType}
+                className="grid grid-cols-2 gap-4"
+              >
                 <div>
-                  <RadioGroupItem value="participant" id="participant" className="peer sr-only" />
+                  <RadioGroupItem id="participant" value="participant" className="peer sr-only" />
                   <Label
                     htmlFor="participant"
                     className="flex flex-col items-center justify-between rounded-md border-2 border-zinc-800 bg-zinc-950 p-4 hover:bg-zinc-900 hover:border-orange-500/50 peer-data-[state=checked]:border-orange-500 [&:has([data-state=checked])]:border-orange-500 cursor-pointer"
@@ -45,7 +55,7 @@ export default function RegisterPage() {
                   </Label>
                 </div>
                 <div>
-                  <RadioGroupItem value="organizer" id="organizer" className="peer sr-only" />
+                  <RadioGroupItem id="organizer" value="organizer" className="peer sr-only" />
                   <Label
                     htmlFor="organizer"
                     className="flex flex-col items-center justify-between rounded-md border-2 border-zinc-800 bg-zinc-950 p-4 hover:bg-zinc-900 hover:border-orange-500/50 peer-data-[state=checked]:border-orange-500 [&:has([data-state=checked])]:border-orange-500 cursor-pointer"
@@ -119,7 +129,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="flex items-start space-x-2">
-                <Checkbox id="terms" className="mt-1" />
+                <Checkbox id="terms" />
                 <label
                   htmlFor="terms"
                   className="text-sm leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
