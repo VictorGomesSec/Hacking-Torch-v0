@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
 import type { User, Session, AuthError } from "@supabase/supabase-js"
-
 import { useRouter } from "next/navigation"
 import { useState, useEffect, createContext, useContext } from "react"
 import { supabase } from "@/lib/supabase/client"
@@ -54,27 +52,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getSession()
 
     // Configurar listener para mudanças de autenticação
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-      router.refresh()
-    })
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
 
     return () => {
-      subscription.unsubscribe()
+      authListener.subscription.unsubscribe()
     }
-  }, [router])
+  }, [])
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (!error) {
+        router.refresh()
+      }
+      
       return { error }
-    } catch (err) {
-      console.error("Erro inesperado ao fazer login:", err)
-      return { error: { message: "Ocorreu um erro inesperado ao fazer login" } as AuthError }
+    } catch (error) {
+      console.error("Erro no login:", error)
+      return { error: error as AuthError }
     }
   }
 
@@ -87,50 +92,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: userData,
         },
       })
-
-      if (!error && data.user) {
-        // Criar perfil do usuário
-        const { error: profileError } = await supabase.from("profiles").insert({
-          id: data.user.id,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          user_type: userData.user_type,
-          email: email,
-        })
-
-        if (profileError) {
-          console.error("Erro ao criar perfil:", profileError)
-        }
+      
+      if (!error) {
+        router.refresh()
       }
-
+      
       return { error, user: data.user }
-    } catch (err) {
-      console.error("Erro inesperado ao criar conta:", err)
-      return {
-        error: { message: "Ocorreu um erro inesperado ao criar conta" } as AuthError,
-        user: null,
-      }
+    } catch (error) {
+      console.error("Erro no cadastro:", error)
+      return { error: error as AuthError, user: null }
     }
   }
 
   const signOut = async () => {
     try {
       await supabase.auth.signOut()
-      router.push("/")
+      router.refresh()
     } catch (error) {
-      console.error("Erro ao fazer logout:", error)
+      console.error("Erro ao sair:", error)
     }
   }
 
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
+        redirectTo: `${window.location.origin}/reset-password`,
       })
+      
       return { error }
-    } catch (err) {
-      console.error("Erro inesperado ao resetar senha:", err)
-      return { error: { message: "Ocorreu um erro inesperado ao resetar senha" } as AuthError }
+    } catch (error) {
+      console.error("Erro ao resetar senha:", error)
+      return { error: error as AuthError }
     }
   }
 
@@ -149,8 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
+  
   if (context === undefined) {
     throw new Error("useAuth deve ser usado dentro de um AuthProvider")
   }
+  
   return context
 }
