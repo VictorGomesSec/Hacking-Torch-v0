@@ -15,7 +15,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Armazenar o caminho atual para redirecionamento após login
     if (!loading && !user) {
-      sessionStorage.setItem("redirectAfterLogin", pathname)
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("redirectAfterLogin", pathname)
+      }
       router.push("/auth/login")
     } else if (!loading && user) {
       setIsAuthenticated(true)

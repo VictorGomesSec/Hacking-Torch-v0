@@ -31,8 +31,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { getServerSupabaseClient } from "@/lib/supabase/server-component"
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Usando o cliente Supabase para Server Components
+  const supabase = getServerSupabaseClient()
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
