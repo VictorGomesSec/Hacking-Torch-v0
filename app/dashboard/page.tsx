@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 import {
   Flame,
   Calendar,
@@ -23,7 +24,6 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useState } from "react"
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("upcoming")
@@ -114,155 +113,183 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="bg-zinc-900/50">
-            <TabsTrigger value="upcoming">Próximos Eventos</TabsTrigger>
-            <TabsTrigger value="registered">Inscritos</TabsTrigger>
-            <TabsTrigger value="past">Participações Anteriores</TabsTrigger>
-          </TabsList>
+        {/* Custom Tabs */}
+        <div className="mb-8">
+          <div className="flex space-x-1 bg-zinc-900/50 p-1 rounded-md">
+            <button
+              onClick={() => setActiveTab("upcoming")}
+              className={`flex-1 py-2 px-4 rounded-sm text-sm font-medium ${
+                activeTab === "upcoming"
+                  ? "bg-zinc-800 text-white"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+              }`}
+            >
+              Próximos Eventos
+            </button>
+            <button
+              onClick={() => setActiveTab("registered")}
+              className={`flex-1 py-2 px-4 rounded-sm text-sm font-medium ${
+                activeTab === "registered"
+                  ? "bg-zinc-800 text-white"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+              }`}
+            >
+              Inscritos
+            </button>
+            <button
+              onClick={() => setActiveTab("past")}
+              className={`flex-1 py-2 px-4 rounded-sm text-sm font-medium ${
+                activeTab === "past" ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+              }`}
+            >
+              Participações Anteriores
+            </button>
+          </div>
 
-          <TabsContent value="upcoming" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((item) => (
-                <Link href="/event/details" key={item}>
-                  <Card className="bg-zinc-900/50 border-zinc-800 overflow-hidden hover:border-orange-500/50 transition-all hover:shadow-lg hover:shadow-orange-500/10">
-                    <div className="relative h-48 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-red-600/80 to-orange-500/80 mix-blend-multiply" />
-                      <img
-                        src={`/placeholder.svg?height=200&width=400&text=Hackathon%20${item}`}
-                        alt={`Hackathon ${item}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <Badge className="absolute top-3 right-3 bg-black/70 text-white">
-                        {item % 2 === 0 ? "Online" : "Presencial"}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-lg">Hackathon Future Tech {item}</h3>
-                        <Badge variant="outline" className="border-orange-500/50 text-orange-400">
-                          {item % 3 === 0 ? "AI" : item % 2 === 0 ? "Web3" : "IoT"}
+          <div className="mt-6">
+            {activeTab === "upcoming" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <Link href="/event/details" key={item}>
+                    <Card className="bg-zinc-900/50 border-zinc-800 overflow-hidden hover:border-orange-500/50 transition-all hover:shadow-lg hover:shadow-orange-500/10">
+                      <div className="relative h-48 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-600/80 to-orange-500/80 mix-blend-multiply" />
+                        <img
+                          src={`/placeholder.svg?height=200&width=400&text=Hackathon%20${item}`}
+                          alt={`Hackathon ${item}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <Badge className="absolute top-3 right-3 bg-black/70 text-white">
+                          {item % 2 === 0 ? "Online" : "Presencial"}
                         </Badge>
                       </div>
-                      <p className="text-zinc-400 text-sm mb-3 line-clamp-2">
-                        Um evento incrível para desenvolvedores, designers e entusiastas de tecnologia.
-                      </p>
-                      <div className="flex items-center gap-2 text-sm text-zinc-500">
-                        <Calendar className="h-4 w-4" />
-                        <span>12-14 Jun, 2025</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                      <div className="flex -space-x-2">
-                        {[1, 2, 3].map((avatar) => (
-                          <Avatar key={avatar} className="border-2 border-zinc-900 h-6 w-6">
-                            <AvatarImage src={`/placeholder.svg?height=24&width=24&text=${avatar}`} />
-                            <AvatarFallback className="bg-gradient-to-br from-red-600 to-orange-500 text-xs">
-                              {avatar}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
-                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-zinc-800 text-xs text-zinc-400 border-2 border-zinc-900">
-                          +42
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-bold text-lg">Hackathon Future Tech {item}</h3>
+                          <Badge variant="outline" className="border-orange-500/50 text-orange-400">
+                            {item % 3 === 0 ? "AI" : item % 2 === 0 ? "Web3" : "IoT"}
+                          </Badge>
+                        </div>
+                        <p className="text-zinc-400 text-sm mb-3 line-clamp-2">
+                          Um evento incrível para desenvolvedores, designers e entusiastas de tecnologia.
+                        </p>
+                        <div className="flex items-center gap-2 text-sm text-zinc-500">
+                          <Calendar className="h-4 w-4" />
+                          <span>12-14 Jun, 2025</span>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="p-4 pt-0 flex justify-between items-center">
+                        <div className="flex -space-x-2">
+                          {[1, 2, 3].map((avatar) => (
+                            <Avatar key={avatar} className="border-2 border-zinc-900 h-6 w-6">
+                              <AvatarImage src={`/placeholder.svg?height=24&width=24&text=${avatar}`} />
+                              <AvatarFallback className="bg-gradient-to-br from-red-600 to-orange-500 text-xs">
+                                {avatar}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                          <div className="flex items-center justify-center h-6 w-6 rounded-full bg-zinc-800 text-xs text-zinc-400 border-2 border-zinc-900">
+                            +42
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-orange-400">
+                          <Flame className="h-4 w-4" />
+                          <span className="text-sm font-medium">{120 + item * 10}</span>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {activeTab === "registered" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2].map((item) => (
+                  <Card key={item} className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
+                    <div className="relative h-40 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-red-600/80 to-orange-500/80 mix-blend-multiply" />
+                      <img
+                        src={`/placeholder.svg?height=160&width=400&text=Registered%20${item}`}
+                        alt={`Registered ${item}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <Badge className="absolute top-3 right-3 bg-green-600 text-white">Inscrito</Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-2">DevConf 2025 - Edição {item}</h3>
+                      <div className="flex flex-wrap gap-2 items-center text-sm text-zinc-400 mb-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>20-22 Jul, 2025</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>Rio de Janeiro, RJ</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 text-orange-400">
-                        <Flame className="h-4 w-4" />
-                        <span className="text-sm font-medium">{120 + item * 10}</span>
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm">
+                          <span className="text-zinc-400">Status: </span>
+                          <span className="text-green-400 font-medium">Confirmado</span>
+                        </div>
+                        <Link
+                          href="/event/check-in"
+                          className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+                        >
+                          Ver QR Code →
+                        </Link>
                       </div>
-                    </CardFooter>
+                    </CardContent>
                   </Card>
-                </Link>
-              ))}
-            </div>
-          </TabsContent>
+                ))}
+              </div>
+            )}
 
-          <TabsContent value="registered" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2].map((item) => (
-                <Card key={item} className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
-                  <div className="relative h-40 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-600/80 to-orange-500/80 mix-blend-multiply" />
-                    <img
-                      src={`/placeholder.svg?height=160&width=400&text=Registered%20${item}`}
-                      alt={`Registered ${item}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <Badge className="absolute top-3 right-3 bg-green-600 text-white">Inscrito</Badge>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-bold text-lg mb-2">DevConf 2025 - Edição {item}</h3>
-                    <div className="flex flex-wrap gap-2 items-center text-sm text-zinc-400 mb-3">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>20-22 Jul, 2025</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>Rio de Janeiro, RJ</span>
-                      </div>
+            {activeTab === "past" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <Card key={item} className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
+                    <div className="relative h-40 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-zinc-700/90 to-zinc-900/90 mix-blend-multiply" />
+                      <img
+                        src={`/placeholder.svg?height=160&width=400&text=Past%20${item}`}
+                        alt={`Past ${item}`}
+                        className="w-full h-full object-cover grayscale"
+                      />
+                      <Badge className="absolute top-3 right-3 bg-zinc-700 text-white">Concluído</Badge>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm">
-                        <span className="text-zinc-400">Status: </span>
-                        <span className="text-green-400 font-medium">Confirmado</span>
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-2">TechSummit 2024 - Edição {item}</h3>
+                      <div className="flex flex-wrap gap-2 items-center text-sm text-zinc-400 mb-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>10-12 Nov, 2024</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Trophy className="h-4 w-4" />
+                          <span>2º Lugar</span>
+                        </div>
                       </div>
-                      <Link
-                        href="/event/check-in"
-                        className="text-orange-400 hover:text-orange-300 text-sm font-medium"
-                      >
-                        Ver QR Code →
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="past" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((item) => (
-                <Card key={item} className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
-                  <div className="relative h-40 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-zinc-700/90 to-zinc-900/90 mix-blend-multiply" />
-                    <img
-                      src={`/placeholder.svg?height=160&width=400&text=Past%20${item}`}
-                      alt={`Past ${item}`}
-                      className="w-full h-full object-cover grayscale"
-                    />
-                    <Badge className="absolute top-3 right-3 bg-zinc-700 text-white">Concluído</Badge>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-bold text-lg mb-2">TechSummit 2024 - Edição {item}</h3>
-                    <div className="flex flex-wrap gap-2 items-center text-sm text-zinc-400 mb-3">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>10-12 Nov, 2024</span>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1 text-sm">
+                          <Users className="h-4 w-4 text-zinc-500" />
+                          <span className="text-zinc-400">Team Innovators</span>
+                        </div>
+                        <Link
+                          href="/event/certificate"
+                          className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+                        >
+                          Ver certificado →
+                        </Link>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Trophy className="h-4 w-4" />
-                        <span>2º Lugar</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-1 text-sm">
-                        <Users className="h-4 w-4 text-zinc-500" />
-                        <span className="text-zinc-400">Team Innovators</span>
-                      </div>
-                      <Link
-                        href="/event/certificate"
-                        className="text-orange-400 hover:text-orange-300 text-sm font-medium"
-                      >
-                        Ver certificado →
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-zinc-900/50 border-zinc-800 col-span-2">

@@ -1,15 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 import { Flame, Mail, Lock, Github, ChromeIcon as Google, User, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
 
 export default function RegisterPage() {
   const [userType, setUserType] = useState("participant")
@@ -37,35 +35,32 @@ export default function RegisterPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <RadioGroup
-                defaultValue="participant"
-                value={userType}
-                onValueChange={setUserType}
-                className="grid grid-cols-2 gap-4"
-              >
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <RadioGroupItem id="participant" value="participant" className="peer sr-only" />
-                  <Label
-                    htmlFor="participant"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-zinc-800 bg-zinc-950 p-4 hover:bg-zinc-900 hover:border-orange-500/50 peer-data-[state=checked]:border-orange-500 [&:has([data-state=checked])]:border-orange-500 cursor-pointer"
+                  <div
+                    className={`flex flex-col items-center justify-between rounded-md border-2 ${
+                      userType === "participant" ? "border-orange-500" : "border-zinc-800"
+                    } bg-zinc-950 p-4 hover:bg-zinc-900 hover:border-orange-500/50 cursor-pointer`}
+                    onClick={() => setUserType("participant")}
                   >
                     <User className="mb-3 h-6 w-6 text-orange-400" />
                     <div className="font-medium">Participante</div>
                     <div className="text-xs text-zinc-400 text-center mt-1">Participe de hackathons e eventos</div>
-                  </Label>
+                  </div>
                 </div>
                 <div>
-                  <RadioGroupItem id="organizer" value="organizer" className="peer sr-only" />
-                  <Label
-                    htmlFor="organizer"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-zinc-800 bg-zinc-950 p-4 hover:bg-zinc-900 hover:border-orange-500/50 peer-data-[state=checked]:border-orange-500 [&:has([data-state=checked])]:border-orange-500 cursor-pointer"
+                  <div
+                    className={`flex flex-col items-center justify-between rounded-md border-2 ${
+                      userType === "organizer" ? "border-orange-500" : "border-zinc-800"
+                    } bg-zinc-950 p-4 hover:bg-zinc-900 hover:border-orange-500/50 cursor-pointer`}
+                    onClick={() => setUserType("organizer")}
                   >
                     <Briefcase className="mb-3 h-6 w-6 text-orange-400" />
                     <div className="font-medium">Organizador</div>
                     <div className="text-xs text-zinc-400 text-center mt-1">Crie e gerencie seus próprios eventos</div>
-                  </Label>
+                  </div>
                 </div>
-              </RadioGroup>
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
