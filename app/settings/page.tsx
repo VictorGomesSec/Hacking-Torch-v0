@@ -1,4 +1,5 @@
 "use client"
+
 import Link from "next/link"
 import {
   Flame,
@@ -13,6 +14,7 @@ import {
   Mail,
   Smartphone,
   Globe,
+  Trash2,
   Save,
   X,
 } from "lucide-react"
@@ -21,8 +23,10 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +35,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function SettingsPage() {
   return (
@@ -248,44 +251,41 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="language">Idioma</Label>
-                        <Select defaultValue="pt-BR">
-                          <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                            <SelectValue placeholder="Selecione um idioma" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-zinc-900 border-zinc-800">
-                            <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
-                            <SelectItem value="en-US">English (US)</SelectItem>
-                            <SelectItem value="es">Español</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <select
+                          id="language"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-white"
+                          defaultValue="pt-BR"
+                        >
+                          <option value="pt-BR">Português (Brasil)</option>
+                          <option value="en-US">English (US)</option>
+                          <option value="es">Español</option>
+                        </select>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="timezone">Fuso horário</Label>
-                        <Select defaultValue="america-sao_paulo">
-                          <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                            <SelectValue placeholder="Selecione um fuso horário" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-zinc-900 border-zinc-800">
-                            <SelectItem value="america-sao_paulo">America/Sao_Paulo (GMT-3)</SelectItem>
-                            <SelectItem value="america-new_york">America/New_York (GMT-5)</SelectItem>
-                            <SelectItem value="europe-london">Europe/London (GMT+0)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <select
+                          id="timezone"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-white"
+                          defaultValue="america-sao_paulo"
+                        >
+                          <option value="america-sao_paulo">America/Sao_Paulo (GMT-3)</option>
+                          <option value="america-new_york">America/New_York (GMT-5)</option>
+                          <option value="europe-london">Europe/London (GMT+0)</option>
+                        </select>
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="date-format">Formato de data</Label>
-                      <Select defaultValue="dd-mm-yyyy">
-                        <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                          <SelectValue placeholder="Selecione um formato de data" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-900 border-zinc-800">
-                          <SelectItem value="dd-mm-yyyy">DD/MM/YYYY</SelectItem>
-                          <SelectItem value="mm-dd-yyyy">MM/DD/YYYY</SelectItem>
-                          <SelectItem value="yyyy-mm-dd">YYYY-MM-DD</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <select
+                        id="date-format"
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-white"
+                        defaultValue="dd-mm-yyyy"
+                      >
+                        <option value="dd-mm-yyyy">DD/MM/YYYY</option>
+                        <option value="mm-dd-yyyy">MM/DD/YYYY</option>
+                        <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                      </select>
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end border-t border-zinc-800 p-4">
@@ -296,7 +296,265 @@ export default function SettingsPage() {
                 </Card>
               </TabsContent>
 
-              {/* Remaining TabsContent sections would continue here */}
+              <TabsContent value="notifications" className="space-y-6">
+                <Card className="bg-zinc-900/50 border-zinc-800">
+                  <CardHeader>
+                    <CardTitle>Notificações</CardTitle>
+                    <CardDescription className="text-zinc-400">
+                      Configure como e quando você deseja receber notificações
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Notificações por e-mail</h3>
+                      <div className="space-y-3">
+                        {[
+                          { id: "email-events", label: "Novos eventos" },
+                          { id: "email-teams", label: "Convites para times" },
+                          { id: "email-submissions", label: "Prazos de submissão" },
+                          { id: "email-results", label: "Resultados de eventos" },
+                          { id: "email-marketing", label: "Novidades e promoções" },
+                        ].map((item) => (
+                          <div key={item.id} className="flex items-center justify-between">
+                            <Label htmlFor={item.id} className="flex-1">
+                              {item.label}
+                            </Label>
+                            <Switch id={item.id} defaultChecked={item.id !== "email-marketing"} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator className="bg-zinc-800" />
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Notificações no aplicativo</h3>
+                      <div className="space-y-3">
+                        {[
+                          { id: "app-events", label: "Novos eventos" },
+                          { id: "app-teams", label: "Convites para times" },
+                          { id: "app-messages", label: "Mensagens" },
+                          { id: "app-submissions", label: "Prazos de submissão" },
+                          { id: "app-results", label: "Resultados de eventos" },
+                        ].map((item) => (
+                          <div key={item.id} className="flex items-center justify-between">
+                            <Label htmlFor={item.id} className="flex-1">
+                              {item.label}
+                            </Label>
+                            <Switch id={item.id} defaultChecked />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end border-t border-zinc-800 p-4">
+                    <Button className="bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400">
+                      Salvar preferências
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="security" className="space-y-6">
+                <Card className="bg-zinc-900/50 border-zinc-800">
+                  <CardHeader>
+                    <CardTitle>Segurança</CardTitle>
+                    <CardDescription className="text-zinc-400">
+                      Gerencie sua senha e configurações de segurança
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Alterar senha</h3>
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="current-password">Senha atual</Label>
+                          <Input
+                            id="current-password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="bg-zinc-800 border-zinc-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">Nova senha</Label>
+                          <Input
+                            id="new-password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="bg-zinc-800 border-zinc-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-password">Confirmar nova senha</Label>
+                          <Input
+                            id="confirm-password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="bg-zinc-800 border-zinc-700"
+                          />
+                        </div>
+                        <Button className="bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400">
+                          Atualizar senha
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-zinc-800" />
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Autenticação de dois fatores</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium">Autenticação de dois fatores</div>
+                            <div className="text-sm text-zinc-400">
+                              Adicione uma camada extra de segurança à sua conta
+                            </div>
+                          </div>
+                          <Switch id="2fa" />
+                        </div>
+                        <Button variant="outline" className="border-zinc-700">
+                          Configurar autenticação de dois fatores
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-zinc-800" />
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Sessões ativas</h3>
+                      <div className="space-y-3">
+                        {[
+                          {
+                            device: "Chrome em Windows",
+                            location: "São Paulo, Brasil",
+                            time: "Agora",
+                            current: true,
+                          },
+                          {
+                            device: "Safari em iPhone",
+                            location: "São Paulo, Brasil",
+                            time: "Há 2 horas",
+                            current: false,
+                          },
+                        ].map((session, index) => (
+                          <div key={index} className="flex items-start justify-between p-3 bg-zinc-800/50 rounded-lg">
+                            <div>
+                              <div className="font-medium flex items-center">
+                                {session.device}
+                                {session.current && (
+                                  <Badge className="ml-2 bg-green-600 text-white text-xs">Atual</Badge>
+                                )}
+                              </div>
+                              <div className="text-sm text-zinc-400">
+                                {session.location} • {session.time}
+                              </div>
+                            </div>
+                            {!session.current && (
+                              <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300">
+                                Encerrar
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button variant="outline" className="border-zinc-700 w-full">
+                          Encerrar todas as outras sessões
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="privacy" className="space-y-6">
+                <Card className="bg-zinc-900/50 border-zinc-800">
+                  <CardHeader>
+                    <CardTitle>Privacidade</CardTitle>
+                    <CardDescription className="text-zinc-400">
+                      Gerencie suas configurações de privacidade e dados pessoais
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Visibilidade do perfil</h3>
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="profile-visibility">Quem pode ver meu perfil</Label>
+                          <select
+                            id="profile-visibility"
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-white"
+                            defaultValue="all"
+                          >
+                            <option value="all">Todos</option>
+                            <option value="participants">Apenas participantes de eventos</option>
+                            <option value="teams">Apenas membros do time</option>
+                          </select>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="show-email" className="flex-1">
+                            Mostrar meu e-mail no perfil
+                          </Label>
+                          <Switch id="show-email" />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="show-teams" className="flex-1">
+                            Mostrar meus times no perfil
+                          </Label>
+                          <Switch id="show-teams" defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-zinc-800" />
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Dados e cookies</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="analytics" className="flex-1">
+                            Permitir análise de uso
+                            <span className="block text-xs text-zinc-400">
+                              Nos ajuda a melhorar a plataforma com dados anônimos
+                            </span>
+                          </Label>
+                          <Switch id="analytics" defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="personalization" className="flex-1">
+                            Personalização de conteúdo
+                            <span className="block text-xs text-zinc-400">
+                              Recomendações baseadas em seus interesses
+                            </span>
+                          </Label>
+                          <Switch id="personalization" defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-zinc-800" />
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-red-400">Zona de perigo</h3>
+                      <div className="space-y-3">
+                        <div className="p-4 border border-red-900/50 bg-red-950/20 rounded-lg">
+                          <h4 className="font-medium mb-2">Excluir conta</h4>
+                          <p className="text-sm text-zinc-400 mb-4">
+                            Ao excluir sua conta, todos os seus dados serão permanentemente removidos. Esta ação não
+                            pode ser desfeita.
+                          </p>
+                          <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                            <Trash2 className="h-4 w-4 mr-1.5" /> Excluir minha conta
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </div>
         </div>

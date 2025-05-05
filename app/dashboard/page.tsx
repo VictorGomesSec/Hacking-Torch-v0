@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import {
   Flame,
@@ -22,7 +24,6 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,8 +32,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useState } from "react"
 
 export default function DashboardPage() {
+  const [activeTab, setActiveTab] = useState("upcoming")
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -110,7 +114,7 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        <Tabs defaultValue="upcoming" className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="bg-zinc-900/50">
             <TabsTrigger value="upcoming">Próximos Eventos</TabsTrigger>
             <TabsTrigger value="registered">Inscritos</TabsTrigger>
@@ -346,9 +350,12 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Progress value={deadline.progress} className="h-2 bg-zinc-800">
-                        <div className="h-full bg-gradient-to-r from-red-600 to-orange-500 rounded-full" />
-                      </Progress>
+                      <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-red-600 to-orange-500 rounded-full"
+                          style={{ width: `${deadline.progress}%` }}
+                        />
+                      </div>
                       <div className="flex justify-between text-xs text-zinc-500">
                         <span>Hoje</span>
                         <span>{deadline.date}</span>
