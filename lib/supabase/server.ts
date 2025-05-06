@@ -1,13 +1,14 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
 import type { Database } from "@/types/supabase"
 
-// Esta função só deve ser usada em componentes do servidor no diretório app/
-export const createServerSupabaseClient = () => {
+// Esta função usa cookies() e só deve ser usada em Server Components
+export function createServerSupabaseClient() {
   return createServerComponentClient<Database>({ cookies })
 }
 
-// Versão alternativa que não usa next/headers para uso em páginas
-export const createServerClient = (cookieStore: any) => {
-  return createServerComponentClient<Database>({ cookies: () => cookieStore })
+// Esta função não usa cookies() e pode ser usada em qualquer contexto
+export function createServerClient() {
+  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 }
