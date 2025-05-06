@@ -2,6 +2,7 @@ import type React from "react"
 import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/hooks/use-auth"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata = {
   title: "HackingTorch - Plataforma de Eventos Tech",
@@ -16,9 +17,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className="min-h-screen bg-black text-white">
+      <body className="min-h-screen bg-background">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

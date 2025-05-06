@@ -1,37 +1,69 @@
+"use client"
+
+import Link from "next/link"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { Users, Calendar, Award, Settings } from "lucide-react"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
-export const metadata = {
-  title: "Administração | HackingTorch",
-  description: "Painel de administração da plataforma HackingTorch",
-}
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    userCount: 0,
+    eventCount: 0,
+    teamCount: 0,
+    submissionCount: 0,
+  })
+  const [isLoading, setIsLoading] = useState(true)
 
-async function getAdminStats() {
-  const supabase = createServerSupabaseClient()
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const supabase = createClientComponentClient()
 
-  // Obter contagem de usuários
-  const { count: userCount } = await supabase.from("profiles").select("*", { count: "exact", head: true })
+        // Obter contagem de usuários
+        const { count: userCount, error: userError } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
 
-  // Obter contagem de eventos
-  const { count: eventCount } = await supabase.from("events").select("*", { count: "exact", head: true })
+        // Obter contagem de eventos
+        const { count: eventCount, error: eventError } = await supabase
+          .from("events")
+          .select("*", { count: "exact", head: true })
 
-  // Obter contagem de equipes
-  const { count: teamCount } = await supabase.from("teams").select("*", { count: "exact", head: true })
+        // Obter contagem de equipes
+        const { count: teamCount, error: teamError } = await supabase
+          .from("teams")
+          .select("*", { count: "exact", head: true })
 
-  // Obter contagem de submissões
-  const { count: submissionCount } = await supabase.from("submissions").select("*", { count: "exact", head: true })
+        // Obter contagem de submissões
+        const { count: submissionCount, error: submissionError } = await supabase
+          .from("submissions")
+          .select("*", { count: "exact", head: true })
 
-  return {
-    userCount: userCount || 0,
-    eventCount: eventCount || 0,
-    teamCount: teamCount || 0,
-    submissionCount: submissionCount || 0,
+        if (userError || eventError || teamError || submissionError) {
+          console.error("Erro ao buscar estatísticas:", { userError, eventError, teamError, submissionError })
+        }
+
+        setStats({
+          userCount: userCount || 0,
+          eventCount: eventCount || 0,
+          teamCount: teamCount || 0,
+          submissionCount: submissionCount || 0,
+        })
+      } catch (error) {
+        console.error("Erro ao buscar estatísticas:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  if (isLoading) {
+    return <div className="flex h-full items-center justify-center">Carregando estatísticas...</div>
   }
-}
-
-export default async function AdminDashboard() {
-  const stats = await getAdminStats()
 
   return (
     <div className="space-y-6">
@@ -123,27 +155,27 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <a
+              <Link
                 href="/admin/users"
                 className="flex items-center rounded-lg border p-3 text-sm transition-colors hover:bg-muted"
               >
                 <Users className="mr-2 h-4 w-4" />
                 <span>Gerenciar Usuários</span>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/admin/events"
                 className="flex items-center rounded-lg border p-3 text-sm transition-colors hover:bg-muted"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 <span>Gerenciar Eventos</span>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/admin/settings"
                 className="flex items-center rounded-lg border p-3 text-sm transition-colors hover:bg-muted"
               >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configurações da Plataforma</span>
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>

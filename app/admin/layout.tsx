@@ -1,7 +1,9 @@
+"use client"
+
 import type React from "react"
-import { Suspense } from "react"
-import { redirect } from "next/navigation"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
 import {
   Sidebar,
@@ -16,39 +18,40 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from "@/components/ui/sidebar"
-import { Toaster } from "@/components/ui/toaster"
-import { Users, BarChart3, Settings, Calendar, LogOut } from "lucide-react"
+import { Users, BarChart3, Settings, Calendar, LogOut, Home } from "lucide-react"
 import Link from "next/link"
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Verificar se o usuário é administrador
-  const supabase = createServerSupabaseClient()
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { user, signOut } = useAuth()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (!session) {
-    redirect("/auth/login")
-  }
+  useEffect(() => {
+    // Verificar se o usuário está autenticado e é admin
+    if (!user) {
+      router.push("/auth/login")
+      return
+    }
 
-  const userRole = session.user?.user_metadata?.role
-  if (userRole !== "admin") {
-    redirect("/dashboard")
-  }
+    const userRole = user.user_metadata?.role
+    if (userRole !== "admin") {
+      router.push("/dashboard")
+      return
+    }
 
-  const handleSignOut = async () => {
-    "use server"
-    const supabase = createServerSupabaseClient()
-    await supabase.auth.signOut()
-    redirect("/auth/login")
+    setIsLoading(false)
+  }, [user, router])
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">Carregando...</div>
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader className="flex items-center justify-center py-4">
@@ -98,23 +101,34 @@ export default async function AdminLayout({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link href="/">
+                        <Home className="mr-2 h-4 w-4" />
+                        <span>Voltar ao Site</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
           </SidebarContent>
 
           <SidebarFooter className="p-4">
-            <form action={handleSignOut}>
-              <SidebarMenuButton className="w-full">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sair</span>
-              </SidebarMenuButton>
-            </form>
+            <SidebarMenuButton onClick={() => signOut()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </SidebarMenuButton>
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 p-6 md:ml-64">
-          <Suspense fallback={<div>Carregando...</div>}>{children}</Suspense>
-        </main>
+        <main className="flex-1 p-6 md:ml-64">{children}</main>
       </SidebarProvider>
-      <Toaster />
     </div>
   )
 }
