@@ -1,108 +1,149 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getAdminStats } from "@/lib/services/admin-service"
-import { BarChart3, Users, Calendar, Award, Clock, CheckCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { Users, Calendar, Award, Settings } from "lucide-react"
+
+export const metadata = {
+  title: "Administração | HackingTorch",
+  description: "Painel de administração da plataforma HackingTorch",
+}
+
+async function getAdminStats() {
+  const supabase = createServerSupabaseClient()
+
+  // Obter contagem de usuários
+  const { count: userCount } = await supabase.from("profiles").select("*", { count: "exact", head: true })
+
+  // Obter contagem de eventos
+  const { count: eventCount } = await supabase.from("events").select("*", { count: "exact", head: true })
+
+  // Obter contagem de equipes
+  const { count: teamCount } = await supabase.from("teams").select("*", { count: "exact", head: true })
+
+  // Obter contagem de submissões
+  const { count: submissionCount } = await supabase.from("submissions").select("*", { count: "exact", head: true })
+
+  return {
+    userCount: userCount || 0,
+    eventCount: eventCount || 0,
+    teamCount: teamCount || 0,
+    submissionCount: submissionCount || 0,
+  }
+}
 
 export default async function AdminDashboard() {
   const stats = await getAdminStats()
 
-  if (!stats) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-lg text-muted-foreground">Erro ao carregar estatísticas</p>
-      </div>
-    )
-  }
-
-  const statCards = [
-    {
-      title: "Total de Usuários",
-      value: stats.totalUsers,
-      description: "Usuários registrados na plataforma",
-      icon: <Users className="h-6 w-6 text-blue-500" />,
-      color: "bg-blue-500/10",
-    },
-    {
-      title: "Total de Eventos",
-      value: stats.totalEvents,
-      description: "Eventos criados na plataforma",
-      icon: <Calendar className="h-6 w-6 text-green-500" />,
-      color: "bg-green-500/10",
-    },
-    {
-      title: "Eventos Ativos",
-      value: stats.activeEvents,
-      description: "Eventos atualmente em andamento",
-      icon: <CheckCircle className="h-6 w-6 text-emerald-500" />,
-      color: "bg-emerald-500/10",
-    },
-    {
-      title: "Eventos Pendentes",
-      value: stats.pendingEvents,
-      description: "Eventos aguardando aprovação",
-      icon: <Clock className="h-6 w-6 text-yellow-500" />,
-      color: "bg-yellow-500/10",
-    },
-    {
-      title: "Total de Equipes",
-      value: stats.totalTeams,
-      description: "Equipes formadas em eventos",
-      icon: <Users className="h-6 w-6 text-purple-500" />,
-      color: "bg-purple-500/10",
-    },
-    {
-      title: "Total de Submissões",
-      value: stats.totalSubmissions,
-      description: "Projetos submetidos em eventos",
-      icon: <Award className="h-6 w-6 text-pink-500" />,
-      color: "bg-pink-500/10",
-    },
-  ]
-
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard de Administração</h1>
-        <p className="text-muted-foreground">Visão geral e estatísticas da plataforma HackingTorch</p>
+        <h1 className="text-3xl font-bold">Painel de Administração</h1>
+        <p className="text-muted-foreground">Bem-vindo ao painel de administração da plataforma HackingTorch.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {statCards.map((card, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <div className={`rounded-full p-2 ${card.color}`}>{card.icon}</div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground">{card.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.userCount}</div>
+            <p className="text-xs text-muted-foreground">Usuários registrados na plataforma</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Eventos</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.eventCount}</div>
+            <p className="text-xs text-muted-foreground">Eventos criados na plataforma</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Equipes</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.teamCount}</div>
+            <p className="text-xs text-muted-foreground">Equipes formadas na plataforma</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Submissões</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.submissionCount}</div>
+            <p className="text-xs text-muted-foreground">Projetos submetidos na plataforma</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Atividade Recente</CardTitle>
-            <CardDescription>Atividades dos últimos 30 dias</CardDescription>
+            <CardTitle>Atividades Recentes</CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
-            <div className="flex h-full items-center justify-center">
-              <BarChart3 className="h-16 w-16 text-muted-foreground/50" />
-              <p className="ml-4 text-muted-foreground">Gráficos de atividade serão implementados em breve</p>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
+                <p className="text-sm">Novo usuário registrado: João Silva</p>
+                <span className="ml-auto text-xs text-muted-foreground">Há 5 minutos</span>
+              </div>
+              <div className="flex items-center">
+                <div className="mr-2 h-2 w-2 rounded-full bg-blue-500"></div>
+                <p className="text-sm">Novo evento criado: Hackathon de IA</p>
+                <span className="ml-auto text-xs text-muted-foreground">Há 2 horas</span>
+              </div>
+              <div className="flex items-center">
+                <div className="mr-2 h-2 w-2 rounded-full bg-yellow-500"></div>
+                <p className="text-sm">Nova equipe formada: Tech Innovators</p>
+                <span className="ml-auto text-xs text-muted-foreground">Há 1 dia</span>
+              </div>
+              <div className="flex items-center">
+                <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
+                <p className="text-sm">Submissão de projeto: AI Assistant</p>
+                <span className="ml-auto text-xs text-muted-foreground">Há 2 dias</span>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Distribuição de Usuários</CardTitle>
-            <CardDescription>Por tipo de usuário</CardDescription>
+            <CardTitle>Ações Rápidas</CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
-            <div className="flex h-full items-center justify-center">
-              <BarChart3 className="h-16 w-16 text-muted-foreground/50" />
-              <p className="ml-4 text-muted-foreground">Gráficos de distribuição serão implementados em breve</p>
+          <CardContent>
+            <div className="grid gap-2">
+              <a
+                href="/admin/users"
+                className="flex items-center rounded-lg border p-3 text-sm transition-colors hover:bg-muted"
+              >
+                <Users className="mr-2 h-4 w-4" />
+                <span>Gerenciar Usuários</span>
+              </a>
+              <a
+                href="/admin/events"
+                className="flex items-center rounded-lg border p-3 text-sm transition-colors hover:bg-muted"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>Gerenciar Eventos</span>
+              </a>
+              <a
+                href="/admin/settings"
+                className="flex items-center rounded-lg border p-3 text-sm transition-colors hover:bg-muted"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Configurações da Plataforma</span>
+              </a>
             </div>
           </CardContent>
         </Card>

@@ -20,13 +20,32 @@ export async function middleware(req: NextRequest) {
     "/event/certificate",
   ]
 
+  // Rotas que requerem permissão de administrador
+  const adminRoutes = ["/admin"]
+
   const isProtectedRoute = protectedRoutes.some((route) => req.nextUrl.pathname.startsWith(route))
+  const isAdminRoute = adminRoutes.some((route) => req.nextUrl.pathname.startsWith(route))
 
   // Redirecionar para login se tentar acessar rota protegida sem estar autenticado
   if (isProtectedRoute && !session) {
     const redirectUrl = new URL("/auth/login", req.url)
     redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
+  }
+
+  // Verificar se o usuário é administrador para rotas de admin
+  if (isAdminRoute) {
+    if (!session) {
+      const redirectUrl = new URL("/auth/login", req.url)
+      redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    const userRole = session.user?.user_metadata?.role
+    if (userRole !== "admin") {
+      // Redirecionar para dashboard se não for admin
+      return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
   }
 
   // Redirecionar para dashboard se tentar acessar login/registro já estando autenticado
@@ -49,5 +68,6 @@ export const config = {
     "/event/team/:path*",
     "/event/submission/:path*",
     "/event/certificate/:path*",
+    "/admin/:path*",
   ],
 }
