@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import type { User, Session, AuthError } from "@supabase/supabase-js"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, createContext, useContext } from "react"
@@ -52,13 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getSession()
 
     // Configurar listener para mudanças de autenticação
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
-      }
-    )
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
     return () => {
       authListener.subscription.unsubscribe()
@@ -71,11 +71,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
       })
-      
+
       if (!error) {
         router.refresh()
       }
-      
+
       return { error }
     } catch (error) {
       console.error("Erro no login:", error)
@@ -92,11 +92,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: userData,
         },
       })
-      
+
       if (!error) {
         router.refresh()
       }
-      
+
       return { error, user: data.user }
     } catch (error) {
       console.error("Erro no cadastro:", error)
@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       })
-      
+
       return { error }
     } catch (error) {
       console.error("Erro ao resetar senha:", error)
@@ -141,10 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  
+
   if (context === undefined) {
     throw new Error("useAuth deve ser usado dentro de um AuthProvider")
   }
-  
+
   return context
 }
