@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Calendar, Award, Settings } from "lucide-react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { supabase } from "@/lib/supabase/client"
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -19,8 +19,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const supabase = createClientComponentClient()
-
         // Obter contagem de usuários
         const { count: userCount, error: userError } = await supabase
           .from("profiles")
