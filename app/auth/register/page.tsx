@@ -3,8 +3,8 @@
 import type React from "react"
 
 import Link from "next/link"
-import { useState } from "react"
-import { Flame, Mail, Lock, Github, ChromeIcon as Google, User, Briefcase } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Flame, Mail, Lock, Github, ChromeIcon as Google, User, Briefcase, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -13,9 +13,13 @@ import { Separator } from "@/components/ui/separator"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
+import { supabaseConfig } from "@/lib/supabase/config"
+
+// Adicione esta importação no topo do arquivo
+import { SupabaseDiagnostics } from "./diagnostics"
 
 export default function RegisterPage() {
-  const { signUp } = useAuth()
+  const { signUp, isConfigValid } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
 
@@ -27,9 +31,32 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [configError, setConfigError] = useState<string | null>(null)
+
+  // Verificar configuração do Supabase
+  useEffect(() => {
+    if (!isConfigValid) {
+      setConfigError("Configuração do Supabase inválida. Verifique as variáveis de ambiente.")
+    } else {
+      setConfigError(null)
+    }
+  }, [isConfigValid])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
+
+    // Verificar configuração do Supabase
+    if (!isConfigValid) {
+      setErrorMessage("Configuração do Supabase inválida. Verifique as variáveis de ambiente.")
+      toast({
+        title: "Erro de configuração",
+        description: "Configuração do Supabase inválida. Verifique as variáveis de ambiente.",
+        variant: "destructive",
+      })
+      return
+    }
 
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       toast({
@@ -61,18 +88,34 @@ export default function RegisterPage() {
     setIsRegistering(true)
 
     try {
-      const { error } = await signUp(email, password, {
+      // Simplificando os dados do usuário
+      const userData = {
         first_name: firstName,
         last_name: lastName,
         user_type: userType,
-        role: "user", // Default role
-      })
+        role: "user",
+      }
+
+      console.log("Iniciando registro com:", { email, userData })
+      console.log("Usando URL do Supabase:", supabaseConfig.supabaseUrl)
+
+      const { error, user } = await signUp(email, password, userData)
 
       if (error) {
-        console.error("Erro de registro:", error.message)
+        let errorMsg = error.message || "Ocorreu um erro durante o registro."
+
+        // Mensagens de erro mais amigáveis para problemas comuns
+        if (errorMsg.includes("Failed to fetch")) {
+          errorMsg = "Falha na conexão com o servidor. Verifique sua conexão com a internet e tente novamente."
+        } else if (errorMsg.includes("network")) {
+          errorMsg = "Problema de rede detectado. Verifique sua conexão e tente novamente."
+        }
+
+        console.error("Erro de registro:", errorMsg)
+        setErrorMessage(errorMsg)
         toast({
           title: "Erro ao criar conta",
-          description: error.message,
+          description: errorMsg,
           variant: "destructive",
         })
       } else {
@@ -81,21 +124,16 @@ export default function RegisterPage() {
           description: "Verifique seu e-mail para confirmar sua conta.",
         })
 
-        // Criar perfil do usuário no banco de dados
-        try {
-          // Aqui você pode adicionar código para criar o perfil do usuário no banco de dados
-          // usando o cliente Supabase
-
-          router.push("/dashboard")
-        } catch (profileError) {
-          console.error("Erro ao criar perfil:", profileError)
-        }
+        // Redirecionar para o dashboard ou página de confirmação
+        router.push("/dashboard")
       }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Ocorreu um erro inesperado. Tente novamente."
       console.error("Erro inesperado:", error)
+      setErrorMessage(errorMsg)
       toast({
         title: "Erro ao criar conta",
-        description: "Ocorreu um erro inesperado. Tente novamente.",
+        description: errorMsg,
         variant: "destructive",
       })
     } finally {
@@ -118,6 +156,20 @@ export default function RegisterPage() {
             <p className="text-zinc-400">Junte-se à comunidade de eventos tech</p>
           </div>
 
+          {configError && (
+            <div className="mb-6 bg-red-900/30 border border-red-800 text-red-200 px-4 py-3 rounded-md">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-5 w-5" />
+                <h3 className="font-semibold">Erro de configuração</h3>
+              </div>
+              <p className="text-sm">{configError}</p>
+              <p className="text-sm mt-2">
+                Verifique se as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY estão
+                configuradas corretamente.
+              </p>
+            </div>
+          )}
+
           <Card className="bg-zinc-900/50 border-zinc-800">
             <form onSubmit={handleRegister}>
               <CardHeader>
@@ -127,6 +179,12 @@ export default function RegisterPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {errorMessage && (
+                  <div className="bg-red-900/30 border border-red-800 text-red-200 px-4 py-2 rounded-md text-sm">
+                    {errorMessage}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <div
@@ -259,7 +317,7 @@ export default function RegisterPage() {
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400"
-                  disabled={isRegistering}
+                  disabled={isRegistering || !isConfigValid}
                 >
                   {isRegistering ? "Criando conta..." : "Criar conta"}
                 </Button>
@@ -290,6 +348,11 @@ export default function RegisterPage() {
                   </Link>
                 </p>
               </CardFooter>
+              {configError && (
+                <div className="px-6 pb-6">
+                  <SupabaseDiagnostics />
+                </div>
+              )}
             </form>
           </Card>
         </div>

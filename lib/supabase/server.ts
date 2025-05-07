@@ -10,6 +10,7 @@ export function createServerSupabaseClient() {
 }
 
 // Função para criar um cliente Supabase no servidor sem depender de cookies
+// Esta função deve ser usada apenas quando necessário, para evitar múltiplas instâncias
 export function createServerClient() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("Variáveis de ambiente do Supabase não configuradas")

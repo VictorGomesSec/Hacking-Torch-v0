@@ -7,14 +7,14 @@ import type { Database } from "@/types/supabase"
 let supabaseInstance: ReturnType<typeof createClientComponentClient<Database>> | null = null
 
 // Função para obter o cliente Supabase
-export function supabase() {
+export function getSupabaseClient() {
   if (!supabaseInstance) {
+    console.log("Criando nova instância do cliente Supabase")
     supabaseInstance = createClientComponentClient<Database>()
   }
   return supabaseInstance
 }
 
 // Para compatibilidade com código existente
-export const createClientSupabaseClient = () => {
-  return createClientComponentClient<Database>()
-}
+export const supabase = getSupabaseClient
+export const createClientSupabaseClient = getSupabaseClient
