@@ -17,10 +17,13 @@ export async function middleware(request: NextRequest) {
       (request.nextUrl.pathname.startsWith("/dashboard") ||
         request.nextUrl.pathname.startsWith("/profile") ||
         request.nextUrl.pathname.startsWith("/settings") ||
-        request.nextUrl.pathname.startsWith("/admin"))
+        request.nextUrl.pathname.startsWith("/admin") ||
+        request.nextUrl.pathname.startsWith("/event/team") ||
+        request.nextUrl.pathname.startsWith("/event/submission") ||
+        request.nextUrl.pathname.startsWith("/event/certificate"))
     ) {
       const redirectUrl = new URL("/auth/login", request.url)
-      redirectUrl.searchParams.set("redirect", request.nextUrl.pathname)
+      redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
       return NextResponse.redirect(redirectUrl)
     }
 
@@ -34,9 +37,8 @@ export async function middleware(request: NextRequest) {
 
     // Verificar se o usuário é admin para rotas /admin
     if (session && request.nextUrl.pathname.startsWith("/admin")) {
-      const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single()
-
-      if (!profile || profile.role !== "admin") {
+      const userRole = session.user?.user_metadata?.role
+      if (userRole !== "admin") {
         return NextResponse.redirect(new URL("/dashboard", request.url))
       }
     }
@@ -56,5 +58,8 @@ export const config = {
     "/admin/:path*",
     "/auth/login",
     "/auth/register",
+    "/event/team/:path*",
+    "/event/submission/:path*",
+    "/event/certificate/:path*",
   ],
 }

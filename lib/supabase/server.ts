@@ -1,14 +1,22 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
 import { createClient } from "@supabase/supabase-js"
 import type { Database } from "@/types/supabase"
 
-// Esta função usa cookies() e só deve ser usada em Server Components
-export function createServerSupabaseClient() {
-  return createServerComponentClient<Database>({ cookies })
-}
-
-// Esta função não usa cookies() e pode ser usada em qualquer contexto
+// Função para criar um cliente Supabase no servidor sem depender de cookies
 export function createServerClient() {
   return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+}
+
+// Função para criar um cliente Supabase no servidor com cookies passados como parâmetro
+export function createServerSupabaseClient(cookieStore?: {
+  get: (name: string) => { value: string } | undefined
+}) {
+  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: cookieStore
+      ? {
+          get(name: string) {
+            return cookieStore?.get(name)?.value
+          },
+        }
+      : undefined,
+  })
 }

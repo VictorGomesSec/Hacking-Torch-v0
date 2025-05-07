@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import Link from "next/link"
 import { useState } from "react"
 import { Flame, Mail, Lock, Github, ChromeIcon as Google, User, Briefcase } from "lucide-react"
@@ -26,7 +28,7 @@ export default function RegisterPage() {
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
@@ -63,9 +65,11 @@ export default function RegisterPage() {
         first_name: firstName,
         last_name: lastName,
         user_type: userType,
+        role: "user", // Default role
       })
 
       if (error) {
+        console.error("Erro de registro:", error.message)
         toast({
           title: "Erro ao criar conta",
           description: error.message,
@@ -76,9 +80,19 @@ export default function RegisterPage() {
           title: "Conta criada com sucesso",
           description: "Verifique seu e-mail para confirmar sua conta.",
         })
-        router.push("/dashboard")
+
+        // Criar perfil do usuário no banco de dados
+        try {
+          // Aqui você pode adicionar código para criar o perfil do usuário no banco de dados
+          // usando o cliente Supabase
+
+          router.push("/dashboard")
+        } catch (profileError) {
+          console.error("Erro ao criar perfil:", profileError)
+        }
       }
     } catch (error) {
+      console.error("Erro inesperado:", error)
       toast({
         title: "Erro ao criar conta",
         description: "Ocorreu um erro inesperado. Tente novamente.",

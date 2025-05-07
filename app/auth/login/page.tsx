@@ -1,8 +1,10 @@
 "use client"
 
+import type React from "react"
+
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Flame, Mail, Lock, Github, ChromeIcon as Google } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +17,8 @@ import { useToast } from "@/hooks/use-toast"
 export default function LoginPage() {
   const { signIn } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard"
   const { toast } = useToast()
 
   // Estado para login
@@ -33,7 +37,7 @@ export default function LoginPage() {
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!email || !password) {
@@ -51,6 +55,7 @@ export default function LoginPage() {
       const { error } = await signIn(email, password)
 
       if (error) {
+        console.error("Erro de login:", error.message)
         toast({
           title: "Erro ao fazer login",
           description: error.message,
@@ -61,9 +66,10 @@ export default function LoginPage() {
           title: "Login realizado com sucesso",
           description: "Bem-vindo de volta!",
         })
-        router.push("/dashboard")
+        router.push(redirectTo)
       }
     } catch (error) {
+      console.error("Erro inesperado:", error)
       toast({
         title: "Erro ao fazer login",
         description: "Ocorreu um erro inesperado. Tente novamente.",
