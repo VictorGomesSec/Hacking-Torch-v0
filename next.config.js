@@ -8,18 +8,15 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
+    domains: ["localhost", "your-supabase-url.supabase.co"],
     unoptimized: true,
   },
-  // Adicionar configuração de output para melhorar a compatibilidade com Vercel
-  output: "standalone",
-  // Garantir que o trailingSlash seja consistente
-  trailingSlash: false,
+  // Remover configurações que podem causar problemas
+  experimental: {
+    // Desativar recursos experimentais que podem causar problemas
+    serverActions: true,
+    serverComponentsExternalPackages: [],
+  },
 }
 
 module.exports = nextConfig

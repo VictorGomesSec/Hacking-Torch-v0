@@ -15,28 +15,31 @@ export async function middleware(request: NextRequest) {
       data: { session },
     } = await supabase.auth.getSession()
 
+    // Rotas protegidas que requerem autenticação
+    const protectedRoutes = [
+      "/dashboard",
+      "/profile",
+      "/settings",
+      "/admin",
+      "/event/team",
+      "/event/submission",
+      "/event/certificate",
+    ]
+
     // Verifica se a rota atual requer autenticação
-    const requiresAuth =
-      request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/profile") ||
-      request.nextUrl.pathname.startsWith("/settings") ||
-      request.nextUrl.pathname.startsWith("/admin") ||
-      request.nextUrl.pathname.startsWith("/event/team") ||
-      request.nextUrl.pathname.startsWith("/event/submission") ||
-      request.nextUrl.pathname.startsWith("/event/certificate")
+    const isProtectedRoute = protectedRoutes.some(
+      (route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(`${route}/`),
+    )
 
     // Se não houver sessão e a rota requer autenticação
-    if (!session && requiresAuth) {
-      const redirectUrl = new URL("/auth/login", request.url)
-      redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
+    if (!session && isProtectedRoute) {
+      // Redireciona para a página de login
+      return NextResponse.redirect(new URL("/auth/login", request.url))
     }
 
     // Se houver sessão e a rota é de autenticação
-    if (
-      session &&
-      (request.nextUrl.pathname.startsWith("/auth/login") || request.nextUrl.pathname.startsWith("/auth/register"))
-    ) {
+    if (session && (request.nextUrl.pathname === "/auth/login" || request.nextUrl.pathname === "/auth/register")) {
+      // Redireciona para o dashboard
       return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 
